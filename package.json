@@ -1,0 +1,11 @@
+{
+  "name": "pack-blogomatik",
+  "version": "1.0.0",
+  "description": "Connects to Shopify and imports blogs and articles into a Pack Storefront instance. Bologmatikally.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Jon Iler",
+  "license": "MIT"
+}
