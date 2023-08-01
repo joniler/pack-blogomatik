@@ -1,3 +1,8 @@
+import pkg from "apollo-client";
+const { ApolloClient } = pkg;
+import { createHttpLink } from "apollo-link-http";
+import { InMemoryCache } from "apollo-cache-inmemory";
+
 export const shopifyClient = (shopifyEndpoint, storefrontApiKey) => {
   return new ApolloClient({
     link: createHttpLink({
@@ -5,7 +10,6 @@ export const shopifyClient = (shopifyEndpoint, storefrontApiKey) => {
       headers: {
         "X-Shopify-Storefront-Access-Token": storefrontApiKey,
       },
-      fetch,
     }),
     cache: new InMemoryCache(),
   });

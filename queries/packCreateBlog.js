@@ -1,3 +1,6 @@
+import gql from "graphql-tag";
+import { packClient } from "../clients/packClient.js";
+
 const CREATE_BLOG = gql`
   mutation BlogCreate($input: BlogCreateInput!) {
     blogCreate(input: $input) {
@@ -18,8 +21,8 @@ const CREATE_BLOG = gql`
   }
 `;
 
-export const packCreateBlog = async (packClient, newBlogInput) => {
-  // Expected Format
+export const packCreateBlog = async (shopifyBlog) => {
+  // Pack Expected Format
   // {
   //   title,
   //   handle,
@@ -34,10 +37,32 @@ export const packCreateBlog = async (packClient, newBlogInput) => {
   //   sectionIds: [],
   // }
 
-  await packClient.mutate({
+  const client = packClient(process.env.PACK_STOREFRONT_SECRET);
+
+  const { title, handle, seo } = shopifyBlog
+  const { description } = seo
+
+  // Create new blog input
+  const newBlogInput = {
+    title,
+    handle,
+    description,
+    seo: {
+      title,
+      description,
+      image: null,
+      noIndex: false,
+      noFollow: false,
+    },
+    sectionIds: [],
+  };
+
+  const result = await client.mutate({
     mutation: CREATE_BLOG,
     variables: {
       input: newBlogInput,
     },
-  });
+  })
+
+  return result;
 };

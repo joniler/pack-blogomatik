@@ -19,6 +19,7 @@
     "apollo-link-http": "^1.5.17",
     "chalk": "^5.3.0",
     "cli-spinner": "^0.2.10",
+    "cross-fetch": "^4.0.0",
     "dotenv": "^16.3.1",
     "figlet": "^1.6.0",
     "graphql": "^15.8.0",

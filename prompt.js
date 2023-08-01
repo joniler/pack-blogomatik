@@ -1,10 +1,13 @@
 import figlet from "figlet"
 import chalk from "chalk";
 import { input, confirm } from "@inquirer/prompts";
+import { processBlogs } from "./process.js";
+import { processArticles } from "./process.js";
+import { promptWait } from "./utils/promptWait.js";
 
 let userConfirmed = false
 let isConfirmed = false
-let blogList = []
+let isDone = false
 
 // Validate user input
 const validateEntries = () => {
@@ -103,7 +106,7 @@ export const prompt = async () => {
 
     if(inputValid) {
       userConfirmed = await confirm(
-        { message: `${chalk.white.italic("Everything looks valid! Please confirm your entries are correct to continue...")} \n\n Shopify Store URL: ${chalk.blue.bold(process.env.SHOPIFY_STORE_URL)} \n\n Shopify Storefront API Key: ${chalk.blue.bold(process.env.SHOPIFY_STOREFRONT_API_KEY)} \n\n Pack secret: ${chalk.blue.bold(process.env.PACK_STOREFRONT_SECRET)} \n\n ${chalk.bgGreen(" Press enter to continue or enter a new one ")}`},
+        { message: `${chalk.white.italic("Everything looks valid! Please confirm your entries are correct to continue...")} \n\n Shopify Store URL: ${chalk.blue.bold(process.env.SHOPIFY_STORE_URL)} \n\n Shopify Storefront API Key: ${chalk.blue.bold(process.env.SHOPIFY_STOREFRONT_API_KEY)} \n\n Pack secret: ${chalk.blue.bold(process.env.PACK_STOREFRONT_SECRET)} \n\n ${chalk.bgGreen(" Press ENTER to continue.")}`},
         { clearPromptOnDone: true }
       )
     }
@@ -116,5 +119,35 @@ export const prompt = async () => {
       isConfirmed = false
     }
 
-  } while (!isConfirmed)
+    console.clear()
+
+    const confirmStart = await confirm(
+      { message: `${chalk.white.italic("Ready to start the sync?")} \n\n ${chalk.bgGreen(" Press enter to continue or ctrl+c to exit ")}`},
+      { clearPromptOnDone: true }
+    );
+
+    console.clear()
+
+    if(!confirmStart) {
+      console.log(`${chalk.bgRed("\n\nBlog sync cancelled. Exiting...\n\n")}`)
+      process.exit(0)
+    }
+
+    if(confirmStart) {
+      // Notify user that blog sync is starting, clear console after 3 seconds
+      console.log(`${chalk.white.italic("Starting blog sync...")}`)
+      await promptWait(() => console.clear(), 3000)
+
+      // Fetch all blogs from Shopify & Pack, compare, and prompt user to confirm adding new blogs to Pack
+      await processBlogs();
+
+      // Notify that articles will be added to Pack, clear console after 3 seconds
+      console.log(`${chalk.white.italic("\n\nStarting article sync...\n\n")}`)
+      await promptWait(() => console.clear(), 3000)
+
+      // Once blogs are added, ask user if they want to import articles from Shopify
+      await processArticles();
+
+    }
+  } while (!isConfirmed && !isDone)
 };

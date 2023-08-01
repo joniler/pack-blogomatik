@@ -1,3 +1,5 @@
+import gql from "graphql-tag";
+
 const CREATE_ARTICLE = gql`
   mutation ArticleCreate($input: ArticleCreateInput!) {
     articleCreate(input: $input) {
