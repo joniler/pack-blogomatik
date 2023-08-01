@@ -1,5 +1,5 @@
 import gql from "graphql-tag";
-import { shopifyClient } from "../clients/shopifyClient";
+import { shopifyClient } from "../clients/shopifyClient.js";
 
 const query = gql`
   query ArticlesByBlogHandle ($handle: String!) {
