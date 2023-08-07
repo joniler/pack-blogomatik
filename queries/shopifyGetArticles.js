@@ -2,10 +2,10 @@ import gql from "graphql-tag";
 import { shopifyClient } from "../clients/shopifyClient.js";
 
 const query = gql`
-  query ArticlesByBlogHandle ($handle: String!) {
+  query ArticlesByBlogHandle ($handle: String!, $first: Int, $after: String) {
     blogByHandle(handle: $handle){
       handle
-      articles(first: 250) {
+      articles(first: $first, after: $after, reverse: true) {
         pageInfo {
           hasNextPage
           hasPreviousPage
@@ -19,9 +19,14 @@ const query = gql`
             handle
             publishedAt
             tags
-            excerpt
-            excerptHtml
             contentHtml
+            seo {
+              title
+              description
+            }
+            blog {
+              handle
+            }
             authorV2 {
               name
             }
@@ -38,7 +43,7 @@ const query = gql`
   }
 `;
 
-export const shopifyGetArticles = async (blogHandle, paginationCount, startCursor, endCursor) => {
+export const shopifyGetArticles = async (blogHandle, paginationCount, endCursor) => {
   const client = shopifyClient(process.env.SHOPIFY_STORE_URL, process.env.SHOPIFY_STOREFRONT_API_KEY);
 
   const result = await client.query({
@@ -46,10 +51,9 @@ export const shopifyGetArticles = async (blogHandle, paginationCount, startCurso
     variables: {
       handle: blogHandle,
       first: paginationCount ? paginationCount : 250,
-      after: startCursor ? startCursor : null,
-      before: endCursor ? endCursor : null,
+      after: endCursor ? endCursor : null,
     },
   });
 
-  return result.data.blogHandle.articles;
+  return result.data.blogByHandle.articles;
 }
